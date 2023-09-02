@@ -4,6 +4,7 @@ import { styles } from "./styles";
 import { Form } from "../../components/Form";
 import { EmptyList } from "../../components/EmptyList";
 import { Counter } from "../../components/Counter";
+import { ListItem } from "../../components/ListItem";
 
 export function Home() {
   return (
@@ -22,10 +23,8 @@ export function Home() {
 
         <FlatList
           keyExtractor={(item) => item}
-          data={[]}
-          renderItem={() => (
-            <Text style={{ padding: 40, backgroundColor: "#f00" }}>ITEM</Text>
-          )}
+          data={["1", "2"]}
+          renderItem={() => <ListItem />}
           ListEmptyComponent={() => <EmptyList />}
         />
       </View>
