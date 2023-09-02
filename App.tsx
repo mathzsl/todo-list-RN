@@ -18,7 +18,7 @@ export default function App() {
 
   return (
     <>
-      <StatusBar style="auto" translucent />
+      <StatusBar style="inverted" translucent={false} />
       <Home />
     </>
   );
