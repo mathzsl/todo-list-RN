@@ -30,6 +30,14 @@ export const styles = StyleSheet.create({
     color: "#F2F2F2",
   },
 
+  taskNameChecked: {
+    flex: 1,
+    fontFamily: "Inter_400Regular",
+    fontSize: 14,
+    color: "#808080",
+    textDecorationLine: "line-through",
+  },
+
   button: {
     width: 32,
     height: 32,

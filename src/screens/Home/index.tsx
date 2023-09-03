@@ -5,9 +5,10 @@ import { Form } from "../../components/Form";
 import { EmptyList } from "../../components/EmptyList";
 import { Counter } from "../../components/Counter";
 import { ListItem } from "../../components/ListItem";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import uuid from "react-native-uuid";
+import { getSavedTask, saveTasks } from "../../components/services/storeTasks";
 
 export type Task = {
   id: string;
@@ -19,51 +20,71 @@ export function Home() {
   const [taskList, setTaskList] = useState<Task[]>([]);
   const [task, setTask] = useState("");
 
+  useEffect(() => {
+    async function loadTasks() {
+      const tasks = await getSavedTask("@TaskList");
+      setTaskList(tasks);
+    }
+    loadTasks();
+  }, []);
+
   function handleAddNewTask() {
     if (!task.trim()) {
       return Alert.alert("Ops!", "Você precisa adicionar o nome da tarefa.");
     }
 
-    setTaskList((prevState) => [
-      ...prevState,
+    const newTask = [
+      ...taskList,
       {
         id: String(uuid.v4()),
         done: false,
         task: task,
       },
-    ]);
+    ];
+
+    setTaskList(newTask);
+    saveTasks("@TaskList", newTask);
     setTask("");
   }
 
+  function deleteTask(taskId: string) {
+    const delTask = taskList.filter((task) => {
+      return !task.id.includes(taskId);
+    });
+
+    setTaskList(delTask);
+    saveTasks("@TaskList", delTask);
+  }
+
   function handleToggleChecked(taskId: string) {
-    setTaskList((prevSate) =>
-      prevSate.map((task) => {
-        if (task.id.includes(taskId)) {
-          return {
-            ...task,
-            done: !task.done,
-          };
-        }
-        return task;
-      })
-    );
+    const newTask = taskList.map((task) => {
+      if (task.id.includes(taskId)) {
+        return {
+          ...task,
+          done: !task.done,
+        };
+      }
+      return task;
+    });
+
+    setTaskList(newTask);
+    saveTasks("@TaskList", newTask);
   }
 
   function handleDeleteTask(taskId: string, taskName: string) {
-    Alert.alert("Deletar tarefa", `Deseja mesmo deletar a tarefa: ${taskName}`, [
-      {
-        text: "Deletar",
-        onPress: () =>
-          setTaskList((prevState) =>
-            prevState.filter((task) => {
-              return !task.id.includes(taskId);
-            })
-          ),
-      },
-      {
-        text: "Cancelar",
-      },
-    ]);
+    Alert.alert(
+      "Deletar tarefa",
+      `Deseja mesmo deletar a tarefa: ${taskName}?`,
+      [
+        {
+          text: "Deletar",
+          onPress: () => deleteTask(taskId),
+        },
+        {
+          text: "Cancelar",
+        },
+      ]
+    );
   }
 
   return (
@@ -81,6 +102,7 @@ export function Home() {
         <Counter taskList={taskList} />
 
         <FlatList
+          style={{ marginBottom: 20 }}
           showsVerticalScrollIndicator={false}
           keyExtractor={(item) => item.id}
           data={taskList}
