@@ -1,7 +1,18 @@
 import { Text, View } from "react-native";
 import { styles } from "./styles";
+import { Task } from "../../screens/Home";
 
-export function Counter() {
+type CounterProps = {
+  taskList: Task[];
+};
+
+export function Counter({ taskList }: CounterProps) {
+  const tasksCount = taskList.length;
+
+  const completedTasks = taskList.filter((task) => {
+    return task.done;
+  }).length;
+
   return (
     <View style={styles.container}>
       <View style={styles.countInfo}>
@@ -19,7 +30,7 @@ export function Counter() {
           <Text
             style={{ color: "#fff", fontSize: 12, fontFamily: "Inter_700Bold" }}
           >
-            0
+            {tasksCount}
           </Text>
         </View>
       </View>
@@ -38,7 +49,7 @@ export function Counter() {
           <Text
             style={{ color: "#fff", fontSize: 12, fontFamily: "Inter_700Bold" }}
           >
-            0
+            {completedTasks}
           </Text>
         </View>
       </View>

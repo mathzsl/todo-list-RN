@@ -9,14 +9,14 @@ import { useState } from "react";
 
 import uuid from "react-native-uuid";
 
-type TaskList = {
+export type Task = {
   id: string;
   done: boolean;
   task: string;
 };
 
 export function Home() {
-  const [taskList, setTaskList] = useState<TaskList[]>([]);
+  const [taskList, setTaskList] = useState<Task[]>([]);
   const [task, setTask] = useState("");
 
   function handleAddNewTask() {
@@ -35,6 +35,37 @@ export function Home() {
     setTask("");
   }
 
+  function handleToggleChecked(taskId: string) {
+    setTaskList((prevSate) =>
+      prevSate.map((task) => {
+        if (task.id.includes(taskId)) {
+          return {
+            ...task,
+            done: !task.done,
+          };
+        }
+        return task;
+      })
+    );
+  }
+
+  function handleDeleteTask(taskId: string, taskName: string) {
+    Alert.alert("Deletar tarefa", `Deseja mesmo deletar a tarefa: ${taskName}`, [
+      {
+        text: "Deletar",
+        onPress: () =>
+          setTaskList((prevState) =>
+            prevState.filter((task) => {
+              return !task.id.includes(taskId);
+            })
+          ),
+      },
+      {
+        text: "Cancelar",
+      },
+    ]);
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -44,16 +75,21 @@ export function Home() {
         />
       </View>
 
-      <View style={{ paddingHorizontal: 24 }}>
+      <View style={{ paddingHorizontal: 24, flex: 1 }}>
         <Form onTask={setTask} taskName={task} onAddTask={handleAddNewTask} />
 
-        <Counter />
+        <Counter taskList={taskList} />
 
         <FlatList
+          showsVerticalScrollIndicator={false}
           keyExtractor={(item) => item.id}
           data={taskList}
           renderItem={({ item }) => (
-            <ListItem task={item.task} isChecked={item.done} />
+            <ListItem
+              taskItem={item}
+              onToggleChecked={handleToggleChecked}
+              onDelTask={handleDeleteTask}
+            />
           )}
           ListEmptyComponent={() => <EmptyList />}
         />
